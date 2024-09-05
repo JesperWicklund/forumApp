@@ -2,12 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase"; // Import the initialized auth
 import Header from "@/components/layout/Header";
 
@@ -25,17 +20,6 @@ const Login = () => {
     } catch (error) {
       console.error("Error logging in: ", error);
       setError("Failed to log in");
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-      router.push("/");
-    } catch (error) {
-      console.error("Error logging in with Google: ", error);
-      setError("Failed to log in with Google");
     }
   };
 
@@ -73,12 +57,7 @@ const Login = () => {
               Log In
             </button>
           </form>
-          <button
-            className="w-full p-2 mt-4 bg-red-500 text-white rounded hover:bg-red-600"
-            onClick={handleGoogleLogin}
-          >
-            Login with Google
-          </button>
+
           {error && <p className="mt-4 text-red-500">{error}</p>}
         </div>
       </div>

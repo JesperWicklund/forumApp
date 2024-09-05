@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth, db } from '@/firebase'; // Ensure you have configured Firebase
-import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 import Header from "@/components/layout/Header";
 
 function RegisterPage() {
@@ -40,28 +40,7 @@ function RegisterPage() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      // Store the username in Firestore if it doesn't already exist
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      if (!userDoc.exists()) {
-        await setDoc(doc(db, 'users', user.uid), {
-          userName: user.displayName || 'Anonymous',
-          email: user.email,
-          UserUID: user.uid
-        });
-      }
-
-      router.push("/");
-    } catch (error) {
-      console.error("Error logging in with Google: ", error);
-      setError("Failed to log in with Google");
-    }
-  };
+  
 
   return (
     <div className="mx-auto container">
@@ -109,12 +88,7 @@ function RegisterPage() {
               Register
             </button>
           </form>
-          <button
-            onClick={handleGoogleLogin}
-            className="w-full bg-red-500 text-white p-2 rounded hover:bg-red-600 mt-4"
-          >
-            Register with Google
-          </button>
+          
         </div>
       </div>
     </div>
