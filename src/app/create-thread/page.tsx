@@ -5,12 +5,15 @@ import { db } from '@/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Header from '@/components/layout/Header';
+import { useRouter } from 'next/navigation';
+
 
 function CreateThreadPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
   const [creator, setCreator] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     const auth = getAuth();
@@ -39,6 +42,7 @@ function CreateThreadPage() {
       setTitle('');
       setDescription('');
       setCategory('');
+      router.push('/');
     } catch (error) {
       console.error('Error writing document: ', error);
     }

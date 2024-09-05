@@ -9,9 +9,7 @@ const AllThreadsPage = () => {
       <div className="mb-20">
         <Header />
       </div>
-      <AllThreads />
-      <div className="p-5">
-        <div className="pt-10 mx-auto text-center">
+        <div className="pt-10 flex justify-end">
           <a
             href="/create-thread"
             className="bg-black text-white py-3 px-5 rounded-md dark:text-black dark:bg-white hover:opacity-75"
@@ -19,6 +17,8 @@ const AllThreadsPage = () => {
             Create Thread
           </a>
         </div>
+      <AllThreads />
+      <div className="p-5">
       </div>
     </main>
   );

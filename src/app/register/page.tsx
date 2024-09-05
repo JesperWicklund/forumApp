@@ -32,7 +32,7 @@ function RegisterPage() {
       router.push("/"); // Redirect to home page or another page
     } catch (err: any) {
       if (err.code === "auth/email-already-in-use") {
-        setError("User already exists.");
+        setError("User with email already exists.");
       } else {
         setError("Failed to register user");
       }
