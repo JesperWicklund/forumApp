@@ -13,6 +13,7 @@ function CreateThreadPage() {
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
   const [creator, setCreator] = useState('');
+  const [locked, setLocked] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -35,6 +36,7 @@ function CreateThreadPage() {
       category,
       creator,
       creationDate: new Date().toISOString(),
+      locked,
     };
     try {
       await addDoc(collection(db, 'threads'), newThread);

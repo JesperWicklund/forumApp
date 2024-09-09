@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
-import { auth, db } from '@/firebase'; // Ensure you have these exports in your firebase.js
 
 function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -17,7 +16,7 @@ function Header() {
         setIsLoggedIn(true);
         try {
           const db = getFirestore();
-          const querySnapshot = await getDocs(collection(db, 'your-collection-name'));
+          const querySnapshot = await getDocs(collection(db, 'threads'));
           querySnapshot.forEach((doc) => {
             console.log(`${doc.id} => ${doc.data()}`);
           });

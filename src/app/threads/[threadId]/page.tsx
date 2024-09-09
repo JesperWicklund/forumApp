@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -13,6 +13,7 @@ import {
   addDoc,
   serverTimestamp,
   Timestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Header from "@/components/layout/Header";
@@ -29,6 +30,7 @@ const ThreadDetailPage: React.FC = () => {
   const [usernames, setUsernames] = useState<{ [key: string]: string }>({});
   const [currentUserUID, setCurrentUserUID] = useState<string | null>(null);
   const [currentUserName, setCurrentUserName] = useState<string>("");
+  const [isLocked, setIsLocked] = useState<boolean>(false);
 
   useEffect(() => {
     const auth = getAuth();
@@ -48,16 +50,20 @@ const ThreadDetailPage: React.FC = () => {
       }
     });
 
-    const threadId = pathname?.split("/").pop();
+    console.log("Pathname:", pathname); // Log pathname
+    const pathSegments = pathname?.split("/");
+    const threadId = pathSegments ? pathSegments[pathSegments.length - 1] : null;
+    console.log("Thread ID:", threadId); // Log threadId
     if (threadId) {
       const fetchThread = async () => {
         try {
           const threadDoc = await getDoc(doc(db, "threads", threadId));
           if (threadDoc.exists()) {
             const threadData = threadDoc.data() as Thread;
-            setThread(threadData);
+            setThread({ ...threadData, id: threadDoc.id }); // Ensure thread.id is set
+            setIsLocked(threadData.locked); // Set initial lock state
+            console.log("Thread Data:", { ...threadData, id: threadDoc.id }); // Log threadData
 
-            // Fetch the creator's username
             const userDoc = await getDoc(doc(db, "users", threadData.creator));
             if (userDoc.exists()) {
               const userData = userDoc.data() as User;
@@ -116,7 +122,8 @@ const ThreadDetailPage: React.FC = () => {
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const threadId = pathname?.split("/").pop();
+    const pathSegments = pathname?.split("/");
+    const threadId = pathSegments ? pathSegments[pathSegments.length - 1] : null;
     if (threadId && newComment.trim() && currentUserUID) {
       try {
         const newCommentData = {
@@ -151,6 +158,8 @@ const ThreadDetailPage: React.FC = () => {
     }
   };
 
+  
+
   const sortedComments = comments.sort(
     (a, b) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime()
   );
@@ -161,9 +170,30 @@ const ThreadDetailPage: React.FC = () => {
       <div className="container mx-auto p-4">
         {thread ? (
           <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-            <h1 className="text-2xl font-bold mb-4 dark:text-black">
-              {thread.title}
-            </h1>
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl font-bold dark:text-black uppercase">
+                {thread.title}
+              </h1>
+              {isLoggedIn && thread.creator === currentUserUID && (
+                <button
+                  onClick={async () => {
+                    try {
+                      await updateDoc(doc(db, "threads", thread.id), {
+                        locked: !isLocked,
+                      });
+                      setIsLocked(!isLocked);
+                    } catch (error) {
+                      console.error("Error updating thread lock status:", error);
+                    }
+                  }}
+                  className={`p-2 px-4 rounded ${
+                    isLocked ? "bg-red-500" : "bg-green-500"
+                  } text-white hover:opacity-75`}
+                >
+                  {isLocked ? "Unlock" : "Lock"}
+                </button>
+              )}
+            </div>
             <p
               className="text-gray-700 mb-4"
               style={{ whiteSpace: "pre-wrap" }}
@@ -181,7 +211,7 @@ const ThreadDetailPage: React.FC = () => {
         )}
         <div>
           <h2 className="text-xl font-bold mb-4">Comments</h2>
-          {isLoggedIn && (
+          {isLoggedIn && !isLocked && (
             <form onSubmit={handleCommentSubmit} className="my-4">
               <textarea
                 value={newComment}
@@ -204,24 +234,24 @@ const ThreadDetailPage: React.FC = () => {
                 key={comment.id}
                 className="bg-white shadow-md rounded-lg p-5 px-6 mb-6"
               >
+                <p className="text-sm text-gray-400 font-semibold pb-2">
+                  comment by: {usernames[comment.creator] || "Unknown"}
+                </p>
                 <p
                   className="text-gray-800 pb-2"
                   style={{ whiteSpace: "pre-wrap" }}
                 >
                   {comment.content}
                 </p>
-                <p className="text-sm text-gray-500 font-semibold pb-2">
-                  {usernames[comment.creator] || "Unknown"}
-                </p>
                 <p className="text-gray-500 text-xs">
                   {comment.createdAt.toDate().toLocaleString()}
                 </p>
-                <hr className="mt-4"/>
-                  <CommentOnComment></CommentOnComment>
+                <hr className="mt-4" />
+                <CommentOnComment></CommentOnComment>
               </div>
             ))
           ) : (
-            <p>No comments yet.</p>
+            <p>{isLocked ? "Thread is locked" : "No comments yet"}</p>
           )}
         </div>
       </div>
