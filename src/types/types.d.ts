@@ -6,7 +6,6 @@ export type Comment = {
   content: string;
   creator: string;
   createdAt: Timestamp;
-  markedAsAnswer: boolean;
 };
 
 export type ThreadCategory = "THREAD" | "QNA";

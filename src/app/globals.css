@@ -16,17 +16,21 @@
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  min-height: 100vh;
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+:root {
+  --bg-color: skyblue;
+  --text-color: black;
 }
 
+.dark {
+  --bg-color: black;
+  --text-color: white;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s; 
+}
 @layer utilities {
   .text-balance {
     text-wrap: balance;

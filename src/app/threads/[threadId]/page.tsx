@@ -233,7 +233,7 @@ const ThreadDetailPage: React.FC = () => {
               <textarea
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded text-black bg-white dark:text-white dark:bg-black"
+                className="w-full p-2 border border-gray-300 rounded dark:text-black"
                 placeholder="Add a comment..."
                 required
               />
@@ -249,7 +249,7 @@ const ThreadDetailPage: React.FC = () => {
             sortedComments.map((comment) => (
               <div
                 key={comment.id}
-                className={`bg-white shadow-md rounded-lg p-5 px-6 mb-6 ${comment.id === markedAnswerId ? 'border-2 border-green-500' : ''}`}
+                className={`bg-white shadow-md rounded-lg p-5 px-6 mb-6 ${comment.id === markedAnswerId ? 'border-4 border-green-600' : ''}`}
               >
                 <p className="text-sm text-gray-400 font-semibold pb-2">
                   comment by: {usernames[comment.creator] || "Unknown"}
