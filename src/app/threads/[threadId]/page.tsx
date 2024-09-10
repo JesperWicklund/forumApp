@@ -269,11 +269,11 @@ const ThreadDetailPage: React.FC = () => {
                     className="text-blue-500 text-xs"
                     onClick={() => handleMarkAsAnswer(comment.id)}
                   >
-                    {comment.id === markedAnswerId ? "Unmark as Answer" : "Mark as Answer"}
+                    {comment.id === markedAnswerId ? "Unmark as Top Comment" : "Mark as Top Comment"}
                   </button>
                 )}
                 {comment.id === markedAnswerId && (
-                  <p className="text-green-500 text-xs">Marked as Answer</p>
+                  <p className="text-green-500 text-xs">Marked as Top Comment</p>
                 )}
                 <hr className="mt-4" />
                 <CommentOnComment />

@@ -13,7 +13,6 @@ export type ThreadCategory = "THREAD" | "QNA";
 
 export type Thread = {
   markedAnswerId: null;
-  
   id: string;
   title: string;
   category: ThreadCategory;
