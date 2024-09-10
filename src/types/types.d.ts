@@ -6,17 +6,20 @@ export type Comment = {
   content: string;
   creator: string;
   createdAt: Timestamp;
+  markedAsAnswer: boolean;
 };
 
 export type ThreadCategory = "THREAD" | "QNA";
 
 export type Thread = {
+  markedAnswerId: null;
+  
   id: string;
   title: string;
   category: ThreadCategory;
   creationDate: string;
   description: string;
-  creator: string; // UID of the creator
+  creator: string; 
   locked: boolean;
 
 };

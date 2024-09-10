@@ -31,6 +31,7 @@ const ThreadDetailPage: React.FC = () => {
   const [currentUserUID, setCurrentUserUID] = useState<string | null>(null);
   const [currentUserName, setCurrentUserName] = useState<string>("");
   const [isLocked, setIsLocked] = useState<boolean>(false);
+  const [markedAnswerId, setMarkedAnswerId] = useState<string | null>(null);
 
   useEffect(() => {
     const auth = getAuth();
@@ -62,6 +63,7 @@ const ThreadDetailPage: React.FC = () => {
             const threadData = threadDoc.data() as Thread;
             setThread({ ...threadData, id: threadDoc.id }); // Ensure thread.id is set
             setIsLocked(threadData.locked); // Set initial lock state
+            setMarkedAnswerId(threadData.markedAnswerId || null); // Set initial marked answer
             console.log("Thread Data:", { ...threadData, id: threadDoc.id }); // Log threadData
 
             const userDoc = await getDoc(doc(db, "users", threadData.creator));
@@ -131,6 +133,7 @@ const ThreadDetailPage: React.FC = () => {
           createdAt: serverTimestamp(),
           creator: currentUserUID,
           threadId: threadId,
+          markedAsAnswer: false,
         };
         const docRef = await addDoc(collection(db, "comments"), newCommentData);
         const addedComment = {
@@ -158,11 +161,25 @@ const ThreadDetailPage: React.FC = () => {
     }
   };
 
-  
+  const handleMarkAsAnswer = async (commentId: string) => {
+    if (thread && thread.creator === currentUserUID) {
+      const newMarkedAnswerId = markedAnswerId === commentId ? null : commentId;
+      setMarkedAnswerId(newMarkedAnswerId);
+      try {
+        await updateDoc(doc(db, "threads", thread.id), {
+          markedAnswerId: newMarkedAnswerId,
+        });
+      } catch (error) {
+        console.error("Error marking comment as answer:", error);
+      }
+    }
+  };
 
-  const sortedComments = comments.sort(
-    (a, b) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime()
-  );
+  const sortedComments = comments.sort((a, b) => {
+    if (a.id === markedAnswerId) return -1;
+    if (b.id === markedAnswerId) return 1;
+    return b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime();
+  });
 
   return (
     <div>
@@ -232,11 +249,12 @@ const ThreadDetailPage: React.FC = () => {
             sortedComments.map((comment) => (
               <div
                 key={comment.id}
-                className="bg-white shadow-md rounded-lg p-5 px-6 mb-6"
+                className={`bg-white shadow-md rounded-lg p-5 px-6 mb-6 ${comment.id === markedAnswerId ? 'border-2 border-green-500' : ''}`}
               >
                 <p className="text-sm text-gray-400 font-semibold pb-2">
                   comment by: {usernames[comment.creator] || "Unknown"}
                 </p>
+                
                 <p
                   className="text-gray-800 pb-2"
                   style={{ whiteSpace: "pre-wrap" }}
@@ -246,8 +264,19 @@ const ThreadDetailPage: React.FC = () => {
                 <p className="text-gray-500 text-xs">
                   {comment.createdAt.toDate().toLocaleString()}
                 </p>
+                {isLoggedIn && thread?.creator === currentUserUID && (
+                  <button
+                    className="text-blue-500 text-xs"
+                    onClick={() => handleMarkAsAnswer(comment.id)}
+                  >
+                    {comment.id === markedAnswerId ? "Unmark as Answer" : "Mark as Answer"}
+                  </button>
+                )}
+                {comment.id === markedAnswerId && (
+                  <p className="text-green-500 text-xs">Marked as Answer</p>
+                )}
                 <hr className="mt-4" />
-                <CommentOnComment></CommentOnComment>
+                <CommentOnComment />
               </div>
             ))
           ) : (
